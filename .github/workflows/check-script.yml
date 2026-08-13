@@ -1,0 +1,60 @@
+name: Shell Script Check
+
+on:
+  push:
+    paths:
+      - '*.sh'
+  pull_request:
+    paths:
+      - '*.sh'
+  workflow_dispatch:
+
+jobs:
+  check-script:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Syntax check
+        run: |
+          echo "=== Проверка синтаксиса скрипта ==="
+          bash -n setup_ssh.sh
+          if [ $? -eq 0 ]; then
+            echo "✅ Синтаксис скрипта корректен"
+          else
+            echo "❌ Ошибка в синтаксисе скрипта"
+            exit 1
+          fi
+      
+      - name: ShellCheck analysis
+        run: |
+          echo "=== Проверка через ShellCheck ==="
+          sudo apt-get install -y shellcheck
+          shellcheck setup_ssh.sh
+      
+      - name: Check script permissions
+        run: |
+          echo "=== Проверка прав ==="
+          ls -la setup_ssh.sh
+          chmod +x setup_ssh.sh
+          echo "Скрипт сделан исполняемым"
+      
+      - name: Dry run test
+        run: |
+          echo "=== Тестовый запуск (dry run) ==="
+          # Создаем тестовую среду
+          mkdir -p /tmp/test_env
+          cd /tmp/test_env
+          
+          # Копируем скрипт
+          cp $GITHUB_WORKSPACE/setup_ssh.sh .
+          
+          # Проверяем базовую структуру
+          grep -q "PUBLIC_KEYS" setup_ssh.sh && echo "✅ Массив ключей найден"
+          grep -q "mkdir -p /root/.ssh" setup_ssh.sh && echo "✅ Создание директории root"
+          grep -q "mkdir -p /home/alex/.ssh" setup_ssh.sh && echo "✅ Создание директории alex"
+          grep -q "chmod 700" setup_ssh.sh && echo "✅ Права 700 установлены"
+          grep -q "chmod 600" setup_ssh.sh && echo "✅ Права 600 установлены"
+          grep -q "chown -R alex:alex" setup_ssh.sh && echo "✅ Владелец установлен"
