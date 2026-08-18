@@ -28,7 +28,7 @@ echo "ssh-ed25519 AAAAC..." >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 ```
 
-**Путь к файлу:** `/root/.ssh/authorized_keys`
+**Путь к файлу:** `cd /root/.ssh/`
 
 ---
 
