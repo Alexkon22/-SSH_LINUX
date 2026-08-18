@@ -101,7 +101,34 @@ sudo sshd -t
 ```bash
 sudo systemctl restart sshd
 ```
-
+### 5.Проверка  статуса firewalld:
+```bash
+systemctl status firewalld
+```
+**просмотр списка открытых портов**
+```bash
+firewall-cmd --list-ports
+```
+**открываем порт**
+```bash
+firewall-cmd --permanent --add-port=7070/tcp
+firewall-cmd --reload
+```
+**Проверка что порт добавился**
+```bash
+firewall-cmd --list-ports
+```
+**если используется Ip Tables**
+  проверка правил 
+```bash
+iptables -L -n -v | grep 7070
+```
+ если порт не разрешен добавьте правило 
+ ```bash
+iptables -I INPUT -p tcp --dport 7070 -j ACCEPT
+service iptables save   # если используется служба iptables
+systemctl restart iptables  # или сохранить через iptables-save
+ ```
 ---
 
 ## Проверка настроек
@@ -117,7 +144,10 @@ cat /home/alex/.ssh/authorized_keys
 ```
 
 ---
+## Проверка на Windows хостах
+```ssh -i "C:\Users\ALEX\.ssh\bitrix_key" -p 7070 root@ip ```
 
+--- 
 ## Примечания
 
 - Права `700` на директорию `.ssh` — только владелец имеет доступ
